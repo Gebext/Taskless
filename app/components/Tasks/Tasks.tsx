@@ -3,11 +3,15 @@
 import React from "react";
 import styled from "styled-components";
 import { useGlobalState } from "../context/globalProvider";
-
+import CreateContent from "../Modals/CreateContent";
 const Tasks = () => {
   const { theme } = useGlobalState();
 
-  return <TaskStyled>Tasks</TaskStyled>;
+  return (
+    <TaskStyled>
+      <CreateContent />
+    </TaskStyled>
+  );
 };
 
 const TaskStyled = styled.div`
