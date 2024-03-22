@@ -5,6 +5,8 @@ import { trash } from "@/app/utils/Icons";
 import styled from "styled-components";
 import formatDate from "../../utils/formatDate";
 import { useGlobalState } from "../context/globalProvider";
+import Modal from "../Modals/Modal";
+import EditContent from "../Modals/EditContent";
 
 interface Props {
   title: string;
@@ -15,9 +17,20 @@ interface Props {
 }
 
 const TaskItem = ({ title, description, date, isCompleted, id }: Props) => {
-  const { theme, deleteTask, updateTask } = useGlobalState();
+  const { theme, deleteTask, updateTask, openEditModal, editModal, getUnique } =
+    useGlobalState();
+
+  const handleEditClick = async () => {
+    try {
+      openEditModal(id);
+    } catch (error) {
+      console.error("Error fetching unique data:", error);
+    }
+  };
+
   return (
     <TaskItemStyled theme={theme}>
+      {editModal && <Modal content={<EditContent />} />}
       <h1>{title}</h1>
       <p>{description}</p>
       <p className="date">{formatDate(date)}</p>
@@ -49,7 +62,9 @@ const TaskItem = ({ title, description, date, isCompleted, id }: Props) => {
             Incomplete
           </button>
         )}
-        <button className="edit">{edit}</button>
+        <button className="edit" onClick={handleEditClick}>
+          {edit}
+        </button>
         <button
           className="delete"
           onClick={() => {

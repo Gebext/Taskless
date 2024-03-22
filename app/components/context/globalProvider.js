@@ -1,10 +1,11 @@
 "use client";
 
-import React, { createContext, useState, useContext, useEffect } from "react";
-import axios from "axios";
+import React, { createContext, useState, useContext } from "react";
 import themes from "./themes";
-import { useUser } from "@clerk/nextjs";
+import axios from "axios";
 import toast from "react-hot-toast";
+import { useUser } from "@clerk/nextjs";
+import { totalmem } from "os";
 
 export const GlobalContext = createContext();
 export const GlobalUpdateContext = createContext();
@@ -14,10 +15,37 @@ export const GlobalProvider = ({ children }) => {
 
   const [selectedTheme, setSelectedTheme] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-  const [tasks, setTasks] = useState([]);
   const [modal, setModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
+  const [idEdit, setIdEdit] = useState("");
+  const [tasks, setTasks] = useState([]);
+  const [selectedTasks, setSelectedTasks] = useState({});
+
   const theme = themes[selectedTheme];
 
+  const openModal = () => {
+    setModal(true);
+  };
+
+  const closeModal = () => {
+    setModal(false);
+  };
+
+  const openEditModal = (id) => {
+    setEditModal(true);
+    setIdEdit(id);
+  };
+
+  const closeEditModal = () => {
+    setEditModal(false);
+    setIdEdit("");
+  };
+
+  const collapseMenu = () => {
+    setCollapsed(!collapsed);
+  };
+  
   const allTasks = async () => {
     setIsLoading(true);
     try {
@@ -31,7 +59,6 @@ export const GlobalProvider = ({ children }) => {
       setIsLoading(false);
     } catch (error) {
       console.log(error);
-      toast.error("Something went wrong");
     }
   };
 
@@ -41,6 +68,27 @@ export const GlobalProvider = ({ children }) => {
       toast.success("Task deleted");
 
       allTasks();
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const editTask = async (id) => {
+    try {
+      const res = await axios.patch(`/api/tasks/${id}`);
+    } catch (error) {
+      console.log(error);
+      toast.error("Something went wrong");
+    }
+  };
+
+  const getUnique = async (id) => {
+    try {
+      console.log(id);
+      const res = await axios.get(`/api/tasks/${id}`);
+      console.log(res.data);
+      setSelectedTasks(res.data);
     } catch (error) {
       console.log(error);
       toast.error("Something went wrong");
@@ -60,21 +108,18 @@ export const GlobalProvider = ({ children }) => {
     }
   };
 
-  const openModal = (key) => {
-    setModal(true);
-  };
-
-  const closeModal = (key) => {
-    setModal(false);
-  };
-
   const completedTasks = tasks.filter((task) => task.isCompleted === true);
-  const incompleteTasks = tasks.filter((task) => task.isCompleted === false);
   const importantTasks = tasks.filter((task) => task.isImportant === true);
+  const incompleteTasks = tasks.filter((task) => task.isCompleted === false);
 
-  useEffect(() => {
+  React.useEffect(() => {
     if (user) allTasks();
   }, [user]);
+
+  React.useEffect(() => {
+    if (idEdit) getUnique(idEdit);
+  }, [idEdit]);
+
 
   return (
     <GlobalContext.Provider
@@ -91,6 +136,15 @@ export const GlobalProvider = ({ children }) => {
         openModal,
         closeModal,
         allTasks,
+        collapsed,
+        collapseMenu,
+        editTask,
+        getUnique,
+        editModal,
+        openEditModal,
+        closeEditModal,
+        getUnique,
+        selectedTasks,
       }}
     >
       <GlobalUpdateContext.Provider value={{}}>

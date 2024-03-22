@@ -3,19 +3,28 @@ import React from "react";
 import styled from "styled-components";
 import { useGlobalState } from "../context/globalProvider";
 import Image from "next/image";
+import menu from "@/app/utils/menu";
 import Link from "next/link";
-import menu from "../../utils/menu";
-import { useRouter, usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import Button from "../Button/Button";
-import { logout } from "@/app/utils/Icons";
-import { useClerk } from "@clerk/clerk-react";
-import { UserButton } from "@clerk/nextjs";
-import { useUser } from "@clerk/nextjs";
+import { arrowLeft, bars, logout } from "@/app/utils/Icons";
+import { UserButton, useClerk, useUser } from "@clerk/nextjs";
 
-const Sidebar = () => {
-  const { theme } = useGlobalState();
+function Sidebar() {
+  const { theme, collapsed, collapseMenu } = useGlobalState();
+  const { signOut } = useClerk();
+
+  const { user } = useUser();
+
+  const { firstName, lastName, imageUrl } = user || {
+    firstName: "",
+    lastName: "",
+    imageUrl: "",
+  };
+
   const router = useRouter();
   const pathname = usePathname();
+
   const handleClick = (link: string) => {
     router.push(link);
   };
@@ -30,7 +39,10 @@ const Sidebar = () => {
   };
 
   return (
-    <SidebarStyled theme={theme}>
+    <SidebarStyled theme={theme} collapsed={collapsed}>
+      <button className="toggle-nav" onClick={collapseMenu}>
+        {collapsed ? bars : arrowLeft}
+      </button>
       <div className="profile">
         <div className="profile-overlay"></div>
         <div className="image">
@@ -39,7 +51,7 @@ const Sidebar = () => {
         <div className="user-btn absolute z-20 top-0 w-full h-full">
           <UserButton />
         </div>
-        <h1>
+        <h1 className="capitalize">
           {firstName} {lastName}
         </h1>
       </div>
@@ -48,12 +60,14 @@ const Sidebar = () => {
           const link = item.link;
           return (
             <li
+              key={item.id}
               className={`nav-item ${pathname === link ? "active" : ""}`}
-              onClick={() => handleClick(item.link)}
-              key={item.title}
+              onClick={() => {
+                handleClick(link);
+              }}
             >
               {item.icon}
-              <Link href={item.link}>{item.title}</Link>
+              <Link href={link}>{item.title}</Link>
             </li>
           );
         })}
@@ -74,9 +88,9 @@ const Sidebar = () => {
       </div>
     </SidebarStyled>
   );
-};
+}
 
-const SidebarStyled = styled.nav`
+const SidebarStyled = styled.nav<{ collapsed: boolean }>`
   position: relative;
   width: ${(props) => props.theme.sidebarWidth};
   background-color: ${(props) => props.theme.colorBg2};
@@ -88,6 +102,20 @@ const SidebarStyled = styled.nav`
   justify-content: space-between;
 
   color: ${(props) => props.theme.colorGrey3};
+
+  @media screen and (max-width: 768px) {
+    position: fixed;
+    height: calc(100vh - 2rem);
+    z-index: 100;
+
+    transition: all 0.3s cubic-bezier(0.53, 0.21, 0, 1);
+    transform: ${(props) =>
+      props.collapsed ? "translateX(-107%)" : "translateX(0)"};
+
+    .toggle-nav {
+      display: block !important;
+    }
+  }
 
   .toggle-nav {
     display: none;
@@ -185,7 +213,7 @@ const SidebarStyled = styled.nav`
 
     > h1 {
       margin-left: 0.8rem;
-      font-size: clamp(1.2rem, 4vw, 1.4rem);
+      font-size: clamp(0.8rem, 4vw, 1rem);
       line-height: 100%;
     }
 
@@ -230,7 +258,7 @@ const SidebarStyled = styled.nav`
       top: 0;
       width: 0%;
       height: 100%;
-      background-color: ${(props) => props.theme.colorGreenDark};
+      background-color: #fefefe;
 
       border-bottom-left-radius: 5px;
       border-top-left-radius: 5px;
