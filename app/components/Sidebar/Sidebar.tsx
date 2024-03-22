@@ -9,6 +9,8 @@ import { useRouter, usePathname } from "next/navigation";
 import Button from "../Button/Button";
 import { logout } from "@/app/utils/Icons";
 import { useClerk } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 
 const Sidebar = () => {
   const { theme } = useGlobalState();
@@ -19,16 +21,26 @@ const Sidebar = () => {
   };
   const { signOut } = useClerk();
 
+  const { user } = useUser();
+
+  const { firstName, lastName, imageUrl } = user || {
+    firstName: "",
+    lastName: "",
+    imageUrl: "",
+  };
+
   return (
     <SidebarStyled theme={theme}>
       <div className="profile">
         <div className="profile-overlay"></div>
         <div className="image">
-          <Image width={70} height={70} src="" alt="profile" />
+          <Image width={70} height={70} src={imageUrl} alt="profile" />
+        </div>
+        <div className="user-btn absolute z-20 top-0 w-full h-full">
+          <UserButton />
         </div>
         <h1>
-          <span>John</span>
-          <span>Olsen</span>
+          {firstName} {lastName}
         </h1>
       </div>
       <ul className="nav-items">

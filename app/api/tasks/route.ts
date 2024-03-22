@@ -66,16 +66,25 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-  } catch (error) {
-    console.log("Error updating task: " + error);
-    return NextResponse.json({ error: "Error updating task", status: 500 });
-  }
-}
+    const { userId } = auth();
+    const { isCompleted, id } = await req.json();
 
-export async function DELETING(req: Request) {
-  try {
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized", status: 401 });
+    }
+
+    const task = await prisma.task.update({
+      where: {
+        id,
+      },
+      data: {
+        isCompleted,
+      },
+    });
+
+    return NextResponse.json(task);
   } catch (error) {
-    console.log("Error creating task: " + error);
+    console.log("ERROR UPDATING TASK: ", error);
     return NextResponse.json({ error: "Error deleting task", status: 500 });
   }
 }
