@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import styled from "styled-components";
 import { useGlobalState } from "../context/globalProvider";
@@ -51,10 +53,10 @@ const ModalStyled = styled.div`
     max-width: 630px;
     width: 100%;
     z-index: 100;
-
     background-color: ${(props) => props.theme.colorBg2};
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
     border-radius: 1rem; // Define border-radius only once
+
 
     @media screen and (max-width: 450px) {
       font-size: 90%;
