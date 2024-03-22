@@ -44,9 +44,9 @@ const CreateContent = () => {
 
     try {
       const res = await axios.post("/api/tasks", task);
-      console.log("MASUK");
-
       if (res.data.error) {
+        console.log("MASUK SINI");
+
         return toast.error(res.data.error);
       }
       toast.success("Task created successfully");

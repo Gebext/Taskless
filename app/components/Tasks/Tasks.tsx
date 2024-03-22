@@ -11,30 +11,38 @@ interface Props {
   tasks: any[];
 }
 const Tasks = ({ title, tasks }: Props) => {
-  const { theme } = useGlobalState();
+  const { theme, isLoading } = useGlobalState();
+
   if (!tasks) {
     return <div>No tasks available</div>;
   }
 
   return (
     <TaskStyled theme={theme}>
+      <CreateContent />
       <h1>{title}</h1>
-      <div className="tasks grid">
-        {tasks.map((task) => (
-          <TaskItem
-            key={task.id}
-            title={task.title}
-            description={task.description}
-            date={task.date}
-            isCompleted={task.isCompleted}
-            id={task.id}
-          />
-        ))}
-        <div className="create-task">
-          {plus}
-          Add New Task
+      {!isLoading ? (
+        <div className="tasks grid">
+          {tasks.map((task) => (
+            <TaskItem
+              key={task.id}
+              title={task.title}
+              description={task.description}
+              date={task.date}
+              isCompleted={task.isCompleted}
+              id={task.id}
+            />
+          ))}
+          <div className="create-task">
+            {plus}
+            Add New Task
+          </div>
         </div>
-      </div>
+      ) : (
+        <div className="tasks-loader w-full flex items-center justify-center h-full">
+          <span className="loader"></span>
+        </div>
+      )}
     </TaskStyled>
   );
 };

@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const { title, description, date, completed, important } = await req.json();
 
-    if (!title || !description || !date || !completed) {
+    if (!title || !description || !date) {
       return NextResponse.json({
         error: "Missing required fields",
         status: 400,
@@ -31,8 +31,8 @@ export async function POST(req: Request) {
         title,
         description,
         date,
-        isCompleted: completed,
-        isImportant: important,
+        isCompleted: completed || false,
+        isImportant: important || false,
         userId,
       },
     });
