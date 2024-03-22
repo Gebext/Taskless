@@ -12,7 +12,7 @@ export async function POST(req: Request) {
 
     const { title, description, date, completed, important } = await req.json();
 
-    if (!title || !description || !date || !completed) {
+    if (!title || !description || !date) {
       return NextResponse.json({
         error: "Missing required fields",
         status: 400,
@@ -31,8 +31,8 @@ export async function POST(req: Request) {
         title,
         description,
         date,
-        isCompleted: completed,
-        isImportant: important,
+        isCompleted: completed || false,
+        isImportant: important || false,
         userId,
       },
     });
@@ -46,6 +46,18 @@ export async function POST(req: Request) {
 
 export async function GET(req: Request) {
   try {
+    const { userId } = auth();
+
+    if (!userId) {
+      return NextResponse.json({ error: "unauhtorized", status: 401 });
+    }
+
+    const tasks = await prisma.task.findMany({
+      where: {
+        userId,
+      },
+    });
+    return NextResponse.json(tasks);
   } catch (error) {
     console.log("Error getting task: " + error);
     return NextResponse.json({ error: "Error getting task", status: 500 });
@@ -54,16 +66,25 @@ export async function GET(req: Request) {
 
 export async function PATCH(req: Request) {
   try {
-  } catch (error) {
-    console.log("Error updating task: " + error);
-    return NextResponse.json({ error: "Error updating task", status: 500 });
-  }
-}
+    const { userId } = auth();
+    const { isCompleted, id } = await req.json();
 
-export async function DELETING(req: Request) {
-  try {
+    if (!userId) {
+      return NextResponse.json({ error: "Unauthorized", status: 401 });
+    }
+
+    const task = await prisma.task.update({
+      where: {
+        id,
+      },
+      data: {
+        isCompleted,
+      },
+    });
+
+    return NextResponse.json(task);
   } catch (error) {
-    console.log("Error creating task: " + error);
+    console.log("ERROR UPDATING TASK: ", error);
     return NextResponse.json({ error: "Error deleting task", status: 500 });
   }
 }
