@@ -6,6 +6,9 @@ import Image from "next/image";
 import Link from "next/link";
 import menu from "../../utils/menu";
 import { useRouter, usePathname } from "next/navigation";
+import Button from "../Button/Button";
+import { logout } from "@/app/utils/Icons";
+import { useClerk } from "@clerk/clerk-react";
 
 const Sidebar = () => {
   const { theme } = useGlobalState();
@@ -14,6 +17,7 @@ const Sidebar = () => {
   const handleClick = (link: string) => {
     router.push(link);
   };
+  const { signOut } = useClerk();
 
   return (
     <SidebarStyled theme={theme}>
@@ -42,7 +46,20 @@ const Sidebar = () => {
           );
         })}
       </ul>
-      <button></button>
+      <div className="sign-out relative m-6">
+        <Button
+          name={"Sign Out"}
+          type={"submit"}
+          padding={"0.4rem 0.8rem"}
+          borderRad={"0.8rem"}
+          fw={"500"}
+          fs={"1.2rem"}
+          icon={logout}
+          click={() => {
+            signOut(() => router.push("/signin"));
+          }}
+        />
+      </div>
     </SidebarStyled>
   );
 };
