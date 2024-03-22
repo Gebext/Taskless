@@ -1,5 +1,3 @@
-"use client";
-
 import React from "react";
 import styled from "styled-components";
 import { useGlobalState } from "../context/globalProvider";
@@ -9,10 +7,16 @@ interface Props {
 }
 
 function Modal({ content }: Props) {
-  const { closeModal, theme } = useGlobalState();
+  const { closeModal, theme, closeEditModal } = useGlobalState();
+
+  const handleOverlayClick = () => {
+    closeModal();
+    closeEditModal();
+  };
+
   return (
     <ModalStyled theme={theme}>
-      <div className="modal-overlay" onClick={closeModal}></div>
+      <div className="modal-overlay" onClick={handleOverlayClick}></div>
       <div className="modal-content">{content}</div>
     </ModalStyled>
   );
@@ -42,17 +46,15 @@ const ModalStyled = styled.div`
 
   .modal-content {
     margin: 0 1rem;
-
     padding: 2rem;
     position: relative;
     max-width: 630px;
     width: 100%;
     z-index: 100;
 
-    border-radius: 1rem;
     background-color: ${(props) => props.theme.colorBg2};
     box-shadow: 0 0 1rem rgba(0, 0, 0, 0.3);
-    border-radius: ${(props) => props.theme.borderRadiusMd2};
+    border-radius: 1rem; // Define border-radius only once
 
     @media screen and (max-width: 450px) {
       font-size: 90%;
