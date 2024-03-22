@@ -28,15 +28,6 @@ function Sidebar() {
   const handleClick = (link: string) => {
     router.push(link);
   };
-  const { signOut } = useClerk();
-
-  const { user } = useUser();
-
-  const { firstName, lastName, imageUrl } = user || {
-    firstName: "",
-    lastName: "",
-    imageUrl: "",
-  };
 
   return (
     <SidebarStyled theme={theme} collapsed={collapsed}>
